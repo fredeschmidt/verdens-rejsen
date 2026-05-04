@@ -1,8 +1,6 @@
 import type { CSSProperties } from "react";
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { ETAPER, accentVars, etapeAccent, findEtape } from "@/lib/trip";
-import { getCountryContent, type ContentSection } from "@/lib/content";
+import { accentVars, etapeAccent, type Etape } from "@/lib/trip";
+import type { CountryContent } from "@/lib/content";
 import { CountryBriefTabs, type BriefTab } from "@/components/CountryBriefTabs";
 
 const VIBE_LABEL: Record<string, { label: string; emoji: string }> = {
@@ -47,38 +45,20 @@ function decorateHeadingsWithEmoji(html: string): string {
   );
 }
 
-export function generateStaticParams() {
-  return ETAPER.map((e) => ({ slug: e.slug }));
-}
-
-export async function generateMetadata({
-  params,
+export function CountrySection({
+  etape,
+  content,
 }: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const etape = findEtape(slug);
-  if (!etape) return {};
-  return { title: etape.navn };
-}
-
-export default async function RejseLandPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
+  etape: Etape;
+  content: CountryContent | null;
 }) {
-  const { slug } = await params;
-  const etape = findEtape(slug);
-  if (!etape) notFound();
-
-  const content = await getCountryContent(slug);
   const accent = accentVars(etapeAccent(etape.slug)) as CSSProperties;
   const periode =
     etape.startMaaned === etape.slutMaaned
       ? etape.startMaaned
       : `${etape.startMaaned} – ${etape.slutMaaned}`;
 
-  const sections: ContentSection[] = content?.sections ?? [];
+  const sections = content?.sections ?? [];
   const beforeSection = sections.find((s) => /før/i.test(s.label));
   const onSiteSection = sections.find((s) =>
     /på stedet|under|undervejs/i.test(s.label),
@@ -87,18 +67,16 @@ export default async function RejseLandPage({
   const tabs: BriefTab[] = [];
   if (beforeSection) {
     tabs.push({
-      id: beforeSection.id,
+      id: `${etape.slug}-${beforeSection.id}`,
       label: "Før",
-      heading: beforeSection.label,
       html: decorateHeadingsWithEmoji(beforeSection.html),
       variant: "before",
     });
   }
   if (onSiteSection) {
     tabs.push({
-      id: onSiteSection.id,
+      id: `${etape.slug}-${onSiteSection.id}`,
       label: "Under",
-      heading: onSiteSection.label,
       html: decorateHeadingsWithEmoji(onSiteSection.html),
       variant: "onsite",
     });
@@ -106,7 +84,8 @@ export default async function RejseLandPage({
 
   return (
     <article
-      style={accent}
+      id={etape.slug}
+      style={{ ...accent, scrollMarginTop: "5rem" }}
       className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-[0_28px_56px_-24px_rgba(20,20,20,0.4)]"
     >
       <header
@@ -128,9 +107,9 @@ export default async function RejseLandPage({
             <span aria-hidden className="text-5xl leading-none sm:text-6xl">
               {etape.flag}
             </span>
-            <h1 className="display text-balance text-4xl leading-[1.02] sm:text-6xl">
+            <h2 className="display text-balance text-4xl leading-[1.02] sm:text-6xl">
               {etape.navn}
-            </h1>
+            </h2>
           </div>
 
           {etape.rute.length > 0 ? (

@@ -37,6 +37,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss01", "ss03", "cv11";
+  scroll-behavior: smooth;
 }
 
 body {

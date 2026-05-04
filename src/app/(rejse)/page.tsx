@@ -1,11 +1,20 @@
-export const dynamic = "force-dynamic";
+import { ETAPER } from "@/lib/trip";
+import { getCountryContent } from "@/lib/content";
+import { CountrySection } from "./CountrySection";
 
-export default function RejseDefault() {
+export default async function Home() {
+  const countries = await Promise.all(
+    ETAPER.map(async (etape) => ({
+      etape,
+      content: await getCountryContent(etape.slug),
+    })),
+  );
+
   return (
-    <div className="hidden min-h-[60vh] items-center justify-center lg:flex">
-      <p className="max-w-xs text-center text-sm text-[var(--color-muted-foreground)]">
-        Vælg et land til venstre for at læse rejseguidens noter.
-      </p>
+    <div className="space-y-8">
+      {countries.map(({ etape, content }) => (
+        <CountrySection key={etape.slug} etape={etape} content={content} />
+      ))}
     </div>
   );
 }

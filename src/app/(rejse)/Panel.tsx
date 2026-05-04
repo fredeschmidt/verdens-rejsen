@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import {
   ETAPER,
@@ -11,14 +10,50 @@ import {
   type Fase,
 } from "@/lib/trip";
 
-function activeSlug(pathname: string): string | null {
-  const match = pathname.match(/^\/([^/]+)$/);
-  return match ? match[1] : null;
-}
-
 export function Panel() {
-  const pathname = usePathname();
-  const active = activeSlug(pathname);
+  const [active, setActive] = useState<string | null>(
+    ETAPER[0]?.slug ?? null,
+  );
+
+  useEffect(() => {
+    const elements = ETAPER.map((e) =>
+      document.getElementById(e.slug),
+    ).filter((el): el is HTMLElement => el !== null);
+    if (elements.length === 0) return;
+
+    const computeActive = () => {
+      const ref = window.innerHeight * 0.4;
+      let activeSlug: string | null = null;
+      let bestTop = -Infinity;
+      for (const el of elements) {
+        const top = el.getBoundingClientRect().top;
+        if (top <= ref && top > bestTop) {
+          bestTop = top;
+          activeSlug = el.id;
+        }
+      }
+      if (activeSlug) setActive(activeSlug);
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        computeActive();
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    computeActive();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
 
   return (
     <nav
@@ -90,9 +125,9 @@ function FaseSection({
 function Stop({ etape, isActive }: { etape: Etape; isActive: boolean }) {
   return (
     <li>
-      <Link
-        href={`/${etape.slug}`}
-        aria-current={isActive ? "page" : undefined}
+      <a
+        href={`#${etape.slug}`}
+        aria-current={isActive ? "true" : undefined}
         className={`group flex min-h-11 items-center gap-3 rounded-xl pl-[14px] pr-3 transition-colors ${
           isActive
             ? "bg-[var(--accent-soft)]"
@@ -121,7 +156,7 @@ function Stop({ etape, isActive }: { etape: Etape; isActive: boolean }) {
         >
           {etape.uger}u
         </span>
-      </Link>
+      </a>
     </li>
   );
 }

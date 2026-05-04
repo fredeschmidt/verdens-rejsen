@@ -5,7 +5,6 @@ import { useState } from "react";
 export type BriefTab = {
   id: string;
   label: string;
-  heading: string;
   html: string;
   variant: "before" | "onsite";
 };
@@ -66,11 +65,6 @@ export function CountryBriefTabs({ tabs }: { tabs: BriefTab[] }) {
           aria-labelledby={`tab-${active.id}`}
           className="px-5 py-6 sm:px-7 sm:py-7"
         >
-          <header className="mb-4 border-b border-[var(--color-border)] pb-3">
-            <h2 className="display text-xl leading-tight text-[var(--color-foreground)] sm:text-2xl">
-              {active.heading}
-            </h2>
-          </header>
           <div
             className="prose-rejse"
             dangerouslySetInnerHTML={{ __html: active.html }}
