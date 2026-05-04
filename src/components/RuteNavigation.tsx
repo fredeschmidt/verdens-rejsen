@@ -35,7 +35,7 @@ export function RuteNavigation({
             "linear-gradient(180deg, var(--accent-soft) 0%, transparent 100%)",
         }}
       >
-        <div className="px-6 pt-9 pb-7 sm:px-10 sm:pt-12 sm:pb-9">
+        <div className="px-6 pt-9 pb-3 sm:px-10 sm:pt-12 sm:pb-4">
           <div
             className="flex items-baseline justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.22em]"
             style={{ color: "var(--accent)" }}
@@ -60,35 +60,23 @@ export function RuteNavigation({
         </div>
       </header>
 
-      <section className="px-6 pt-5 pb-6 sm:px-10 sm:pt-6 sm:pb-8">
+      <section className="px-6 pt-2 pb-6 sm:px-10 sm:pt-3 sm:pb-8">
         {selection.kind === "lead" ? (
-          <div className="space-y-3">
+          <div className="tab-acc-list -mx-6 sm:-mx-10">
             {countrySections.map((s, i) => (
-              <details
-                key={i}
-                className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] open:bg-[var(--color-card)]"
-              >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[1.05rem] font-bold leading-snug text-[var(--color-foreground)] [&::-webkit-details-marker]:hidden">
+              <details key={i} name={`tabs-${lead.slug}`} className="tab-acc">
+                <summary className="tab-acc__summary">
+                  <span className="tab-acc__num">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <span
-                    className="flex-1"
+                    className="tab-acc__title"
                     dangerouslySetInnerHTML={{ __html: s.headingHtml }}
                   />
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
-                    style={{ color: "var(--accent)" }}
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <span aria-hidden className="tab-acc__icon shrink-0" />
                 </summary>
                 <div
-                  className="prose-rejse px-5 pb-5"
+                  className="tab-acc__body prose-rejse"
                   dangerouslySetInnerHTML={{ __html: s.bodyHtml }}
                 />
               </details>

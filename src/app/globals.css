@@ -344,3 +344,176 @@ html, body { overflow-x: clip; }
   background: var(--color-muted);
   color: var(--color-foreground);
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Land-accordion (.tab-acc)
+
+   Editorial chapter-list: nummer i accent, uppercase muted label, og
+   + → × ikon-knap. Ingen kort-borders — hairlines i landets accent,
+   accent-soft hover/open-wash der bleeder ud til full-bredde via
+   negative margins på .tab-acc-list (bundet til parent section's
+   px-6/sm:px-10 i RuteNavigation).
+   ────────────────────────────────────────────────────────────────── */
+
+.tab-acc-list {
+  border-top: 1px solid color-mix(in oklab, var(--accent) 24%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 24%, transparent);
+}
+
+.tab-acc {
+  position: relative;
+  transition: background-color 0.22s ease;
+}
+.tab-acc + .tab-acc {
+  border-top: 1px solid color-mix(in oklab, var(--accent) 18%, transparent);
+}
+
+/* Venstre accent-strip dukker op når kapitlet er åbent */
+.tab-acc::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+.tab-acc[open]::before {
+  transform: scaleY(1);
+}
+
+.tab-acc:hover {
+  background: color-mix(in oklab, var(--accent-soft) 32%, transparent);
+}
+.tab-acc[open] {
+  background: color-mix(in oklab, var(--accent-soft) 50%, transparent);
+}
+
+.tab-acc__summary {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.125rem 1.25rem 1.125rem 1.5rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-acc__summary::-webkit-details-marker {
+  display: none;
+}
+.tab-acc__summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (min-width: 640px) {
+  .tab-acc__summary {
+    gap: 1.5rem;
+    padding: 1.25rem 2rem 1.25rem 2.25rem;
+  }
+}
+
+/* Kapitelnummer — vidt tracket, accent, tabular-nums så 01/02 aligner */
+.tab-acc__num {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+.tab-acc:hover .tab-acc__num,
+.tab-acc[open] .tab-acc__num {
+  opacity: 1;
+}
+
+/* Heading — uppercase label i muted grey, samme sprog som "01"-stemplet.
+   Giver rene tight rows hvor nummer + label sidder i samme typografi-familie. */
+.tab-acc__title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+  transition: color 0.2s ease;
+}
+@media (min-width: 640px) {
+  .tab-acc__title {
+    font-size: 0.9rem;
+  }
+}
+.tab-acc:hover .tab-acc__title,
+.tab-acc[open] .tab-acc__title {
+  color: var(--color-foreground);
+}
+.tab-acc__title .prose-h3-emoji {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 1.15em;
+  vertical-align: -0.15em;
+  letter-spacing: 0;
+}
+
+/* + → × ikon-knap. Roterer 45° og fyldes med accent når åben. */
+.tab-acc__icon {
+  position: relative;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in oklab, var(--accent) 45%, transparent);
+  color: var(--accent);
+  background: transparent;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tab-acc__icon::before,
+.tab-acc__icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: currentColor;
+  border-radius: 2px;
+}
+.tab-acc__icon::before {
+  width: 0.65rem;
+  height: 1.5px;
+  transform: translate(-50%, -50%);
+}
+.tab-acc__icon::after {
+  width: 1.5px;
+  height: 0.65rem;
+  transform: translate(-50%, -50%);
+}
+.tab-acc:hover .tab-acc__icon {
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 65%, transparent);
+}
+.tab-acc[open] .tab-acc__icon {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--color-background);
+  transform: rotate(45deg);
+}
+
+/* Body padding matcher summary horizontalt så indhold aligner med label */
+.tab-acc__body {
+  padding: 0 1.25rem 1.5rem 1.5rem;
+}
+@media (min-width: 640px) {
+  .tab-acc__body {
+    padding: 0 2rem 1.75rem 2.25rem;
+  }
+}
