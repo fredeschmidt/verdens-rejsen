@@ -352,7 +352,7 @@ html, body { overflow-x: clip; }
    + → × ikon-knap. Ingen kort-borders — hairlines i landets accent,
    accent-soft hover/open-wash der bleeder ud til full-bredde via
    negative margins på .tab-acc-list (bundet til parent section's
-   px-6/sm:px-10 i RuteNavigation).
+   px-6/sm:px-10 i ByExplorer).
    ────────────────────────────────────────────────────────────────── */
 
 .tab-acc-list {
@@ -463,6 +463,22 @@ html, body { overflow-x: clip; }
   letter-spacing: 0;
 }
 
+/* Inline-badge i tab-summary (fx "3 nætter" på Overnatning).
+   Bruger samme typografi som metadata-baren ("AUG 2030"): mono,
+   uppercase, vidt tracket, accent-farvet. Ingen bg-pille — ren tekst. */
+.tab-acc__badge {
+  display: inline-block;
+  margin-left: 0.75rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
 /* + → × ikon-knap. Roterer 45° og fyldes med accent når åben. */
 .tab-acc__icon {
   position: relative;
@@ -516,4 +532,105 @@ html, body { overflow-x: clip; }
   .tab-acc__body {
     padding: 0 2rem 1.75rem 2.25rem;
   }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   By-explorer panel (.by-tab-panel)
+
+   By-tabs genbruger den editorial accordion (.tab-acc) som vises på
+   landeniveau. Det eneste lokale styling er en blød fade-in når man
+   skifter by + en empty-state besked til endnu-ikke-skrevne sektioner.
+   ────────────────────────────────────────────────────────────────── */
+
+.by-tab-panel {
+  animation: by-tab-fade 0.24s ease-out;
+}
+
+.by-tab-empty {
+  color: var(--color-muted-foreground);
+  font-size: 0.95rem;
+  padding: 0.5rem 0 0.25rem;
+  margin: 0;
+  font-style: italic;
+}
+
+@keyframes by-tab-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Tab-body content polish (.tab-acc__body .prose-rejse)
+
+   Gør indholdet inde i hver foldede tab nemmere at scanne:
+   - Første <p> styles som "lead" med større font, foreground-farve
+     og hairline-divider under (separation fra bullets).
+   - Hver <li> får mere luft + venstre accent-stripe der trækker øjet
+     ned i listen, og bold "title — description"-mønsteret styles som
+     en mini key/value-row.
+   ────────────────────────────────────────────────────────────────── */
+
+.tab-acc__body .prose-rejse > div > p:first-child,
+.tab-acc__body .prose-rejse > p:first-child {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-foreground);
+  padding-bottom: 0.875rem;
+  margin: 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.tab-acc__body .prose-rejse > div > p:first-child strong,
+.tab-acc__body .prose-rejse > p:first-child strong {
+  letter-spacing: -0.005em;
+}
+
+/* Mere luft mellem listepunkter — gør hver bullet til sin egen "row" */
+.tab-acc__body .prose-rejse ul {
+  padding-left: 0;
+  margin-top: 1rem;
+}
+.tab-acc__body .prose-rejse ul > li {
+  position: relative;
+  margin-top: 0;
+  padding: 0.625rem 0 0.625rem 1.5rem;
+  border-top: 1px solid color-mix(in oklab, var(--accent) 12%, transparent);
+  line-height: 1.55;
+}
+.tab-acc__body .prose-rejse ul > li:first-child {
+  border-top: 0;
+  padding-top: 0.25rem;
+}
+.tab-acc__body .prose-rejse ul > li::before {
+  left: 0.45rem;
+  top: 1.05em;
+}
+.tab-acc__body .prose-rejse ul > li:first-child::before {
+  top: 0.65em;
+}
+
+/* "Title — description"-mønstret: titlen får lidt mere vægt og en
+   svag accent på dash-separatoren */
+.tab-acc__body .prose-rejse ul > li > strong:first-child {
+  color: var(--color-foreground);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+/* Tabel-kort i tab-body — let elevation så priser springer i øjnene */
+.tab-acc__body .prose-rejse table {
+  box-shadow: 0 4px 14px -10px rgba(20, 20, 20, 0.18);
+}
+
+/* Blockquote inde i tab-body — lille margin-justering så den lander
+   blødt mellem lead og liste */
+.tab-acc__body .prose-rejse blockquote {
+  background: color-mix(in oklab, var(--accent-soft) 75%, var(--color-card));
+  margin: 1rem 0 0.75rem;
+  font-size: 0.9rem;
 }

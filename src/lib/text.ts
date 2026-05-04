@@ -26,3 +26,13 @@ export function slugify(text: string): string {
 export function stripTags(s: string): string {
   return s.replace(/<[^>]+>/g, "");
 }
+
+export const CITY_TAB_KEYS = [
+  "overnatning",
+  "oplevelser",
+  "spise",
+  "billeder",
+  "budget",
+] as const;
+
+export type CityTabKey = (typeof CITY_TAB_KEYS)[number];

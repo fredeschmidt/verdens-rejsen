@@ -18,6 +18,7 @@ export type Etape = {
   rute: string[];
   visumDanske: string;
   klimaNote: string;
+  budgetDkk?: { min: number; maks: number };
 };
 
 export const ACCENT_HEX: Record<AccentName, string> = {
@@ -49,6 +50,7 @@ export const ETAPER: Etape[] = [
     rute: ["Bergen", "Hardanger", "Sognefjord", "Trollstigen", "Trondheim"],
     visumDanske: "Fri rejse for danskere (Schengen, EØS).",
     klimaNote: "Sensommer, 12–20°C, lange dage i nord, vejr-skift på timen.",
+    budgetDkk: { min: 42_000, maks: 68_000 },
   },
   {
     slug: "vietnam",

@@ -1,10 +1,17 @@
 import type { CSSProperties } from "react";
 import { FASER, accentVars, etapeAccent, type Etape } from "@/lib/trip";
-import { stripTags, type CountryContent, type ContentCard } from "@/lib/content";
-import { RuteNavigation } from "@/components/RuteNavigation";
+import {
+  getCitiesForCountry,
+  slugify,
+  stripTags,
+  type CountryContent,
+  type ContentCard,
+} from "@/lib/content";
+import { ByExplorer } from "@/components/ByExplorer";
 
 function emojiForHeading(text: string): string {
   const t = text.toLowerCase();
+  if (/(tjekliste|booking|book\b)/.test(t)) return "📋";
   if (/(pak|tøj|bagage|kuffert)/.test(t)) return "🎒";
   if (/(visum|papir|pas|esta|eta)/.test(t)) return "📄";
   if (/(valuta|penge|pris|budget|kontant)/.test(t)) return "💰";
@@ -31,7 +38,7 @@ function decorateHeading(headingInnerHtml: string): string {
   return `${headingInnerHtml} <span class="prose-h3-emoji" aria-hidden="true">${emoji}</span>`;
 }
 
-export function CountrySection({
+export async function CountrySection({
   etape,
   content,
 }: {
@@ -59,20 +66,34 @@ export function CountrySection({
     bodyHtml: card.bodyHtml,
   }));
 
+  const byList = etape.rute.map((navn) => ({ slug: slugify(navn), navn }));
+  const loadedCities = await getCitiesForCountry(etape.slug, byList);
+  const cities = byList.map((b) => {
+    const loaded = loadedCities.find((c) => c.bySlug === b.slug);
+    return {
+      slug: b.slug,
+      navn: b.navn,
+      naetter: loaded?.naetter ?? null,
+      budgetDkk: loaded?.budgetDkk ?? null,
+      tabs: loaded?.tabs ?? {},
+    };
+  });
+
   return (
     <article
       id={etape.slug}
       style={{ ...accent, scrollMarginTop: "5rem" }}
       className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-[0_28px_56px_-24px_rgba(20,20,20,0.4)]"
     >
-      <RuteNavigation
+      <ByExplorer
         lead={{ name: etape.navn, slug: etape.slug, flag: etape.flag }}
-        stops={etape.rute}
         transport={etape.intern}
         countrySections={countrySections}
+        cities={cities}
         fase={fase?.navn ?? null}
         periode={periode}
         weeks={etape.uger}
+        budgetDkk={etape.budgetDkk}
       />
     </article>
   );

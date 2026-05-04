@@ -3,9 +3,10 @@ import path from "path";
 import matter from "gray-matter";
 import { marked } from "marked";
 import sanitizeHtml from "sanitize-html";
-import { slugify, stripTags } from "./text";
+import { slugify, stripTags, CITY_TAB_KEYS, type CityTabKey } from "./text";
 
-export { slugify, stripTags };
+export { slugify, stripTags, CITY_TAB_KEYS };
+export type { CityTabKey };
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 
@@ -202,4 +203,72 @@ export async function getCountryContent(slug: string): Promise<CountryContent | 
   const wrapped = wrapH3Sections(withIds);
   const sections = splitByH2(wrapped, headings);
   return { sections };
+}
+
+export type CityContent = {
+  bySlug: string;
+  byNavn: string;
+  naetter: string | null;
+  budgetDkk: { min: number; maks: number } | null;
+  tabs: Partial<Record<CityTabKey, string>>;
+};
+
+const TAB_SLUG_TO_KEY: Record<string, CityTabKey> = {
+  overnatning: "overnatning",
+  oplevelser: "oplevelser",
+  spise: "spise",
+  billeder: "billeder",
+  budget: "budget",
+};
+
+export async function getCityContent(
+  landSlug: string,
+  bySlug: string,
+  byNavn: string,
+): Promise<CityContent | null> {
+  const filePath = path.join(CONTENT_DIR, "byer", landSlug, `${bySlug}.md`);
+  let file: string;
+  try {
+    file = await fs.readFile(filePath, "utf8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw err;
+  }
+  const parsed = matter(file);
+  const rawHtml = marked.parse(parsed.content, { async: false }) as string;
+  const sanitized = sanitizeHtml(rawHtml, SANITIZE_OPTIONS);
+  const { html: withIds, headings } = injectHeadingIds(sanitized);
+  const sections = splitByH2(withIds, headings);
+
+  const tabs: Partial<Record<CityTabKey, string>> = {};
+  for (const s of sections) {
+    const key = TAB_SLUG_TO_KEY[s.id];
+    if (key) tabs[key] = s.html.trim();
+  }
+  const naetterRaw = parsed.data?.naetter;
+  const naetter =
+    typeof naetterRaw === "number"
+      ? String(naetterRaw)
+      : typeof naetterRaw === "string" && naetterRaw.trim() !== ""
+        ? naetterRaw.trim()
+        : null;
+  const budgetRaw = parsed.data?.budget;
+  const budgetDkk =
+    budgetRaw &&
+    typeof budgetRaw === "object" &&
+    typeof budgetRaw.min === "number" &&
+    typeof budgetRaw.maks === "number"
+      ? { min: budgetRaw.min, maks: budgetRaw.maks }
+      : null;
+  return { bySlug, byNavn, naetter, budgetDkk, tabs };
+}
+
+export async function getCitiesForCountry(
+  landSlug: string,
+  byer: { slug: string; navn: string }[],
+): Promise<CityContent[]> {
+  const results = await Promise.all(
+    byer.map((b) => getCityContent(landSlug, b.slug, b.navn)),
+  );
+  return results.filter((c): c is CityContent => c !== null);
 }
