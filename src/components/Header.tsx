@@ -15,7 +15,7 @@ export function Header({
   uger: number;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[color-mix(in_oklab,var(--color-background)_60%,transparent)] backdrop-blur-md">
+    <header className="sticky top-0 z-30 hidden border-b border-[var(--color-border)] bg-[color-mix(in_oklab,var(--color-background)_60%,transparent)] backdrop-blur-md sm:block">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:py-4 lg:px-8">
         <div className="flex items-baseline gap-x-4 gap-y-1">
           <Link

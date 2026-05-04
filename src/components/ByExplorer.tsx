@@ -99,14 +99,14 @@ export function ByExplorer({
             className="flex items-baseline justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.22em]"
             style={{ color: "var(--accent)" }}
           >
-            <span className="font-bold">{fase}</span>
-            <div className="flex items-baseline gap-3 font-semibold">
+            <span className="hidden font-bold sm:inline">{fase}</span>
+            <div className="flex flex-1 items-baseline justify-between gap-3 font-semibold sm:flex-initial sm:justify-end">
               <span>{periode}</span>
-              <span aria-hidden className="opacity-30">·</span>
+              <span aria-hidden className="hidden opacity-30 sm:inline">·</span>
               <span>{weeks} uger</span>
               {budgetLabel ? (
                 <>
-                  <span aria-hidden className="opacity-30">·</span>
+                  <span aria-hidden className="hidden opacity-30 sm:inline">·</span>
                   <span>{budgetLabel}</span>
                 </>
               ) : null}

@@ -17,18 +17,19 @@ export default function RejseLayout({
       />
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-y-0 left-0 -z-10 w-full max-w-xl bg-gradient-to-r from-[rgba(255,254,236,0.55)] via-[rgba(255,254,236,0.15)] to-transparent sm:max-w-2xl"
+        className="pointer-events-none fixed inset-y-0 left-0 -z-10 hidden w-full max-w-xl bg-gradient-to-r from-[rgba(20,20,20,0.7)] via-[rgba(20,20,20,0.35)] to-transparent sm:max-w-2xl lg:block"
       />
 
       <h1 className="sr-only">Verdens Rejsen — overblik</h1>
 
-      <div className="mx-auto w-full max-w-7xl px-5 pt-6 pb-16 sm:pt-8 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-8">
-          <aside className="lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
-            <Panel />
-          </aside>
-          <main className="min-w-0">{children}</main>
-        </div>
+      <aside className="hidden lg:fixed lg:left-0 lg:top-1/2 lg:block lg:max-h-[calc(100vh-3rem)] lg:w-72 lg:-translate-y-1/2 lg:overflow-y-auto lg:px-5 xl:w-80 xl:pl-8">
+        <Panel />
+      </aside>
+
+      <div className="lg:grid lg:grid-cols-[minmax(18rem,1fr)_minmax(0,46rem)_minmax(0,1fr)] xl:grid-cols-[minmax(20rem,1fr)_minmax(0,44rem)_minmax(0,1fr)]">
+        <main className="mx-auto w-full min-w-0 max-w-[46rem] px-5 pb-16 pt-6 sm:pt-8 lg:col-start-2 xl:max-w-[44rem]">
+          {children}
+        </main>
       </div>
     </>
   );

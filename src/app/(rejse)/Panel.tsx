@@ -16,6 +16,8 @@ export function Panel() {
   );
 
   useEffect(() => {
+    if (!window.matchMedia("(min-width: 1024px)").matches) return;
+
     const elements = ETAPER.map((e) =>
       document.getElementById(e.slug),
     ).filter((el): el is HTMLElement => el !== null);
@@ -56,10 +58,7 @@ export function Panel() {
   }, []);
 
   return (
-    <nav
-      aria-label="Ruten"
-      className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[rgba(253,251,238,0.4)] shadow-[0_28px_56px_-24px_rgba(20,20,20,0.4)] backdrop-blur-2xl"
-    >
+    <nav aria-label="Ruten">
       <ol className="px-3 py-5 sm:px-4 sm:py-6">
         {FASER.map((fase, i) => {
           const items = fase.etaper
@@ -128,7 +127,7 @@ function Stop({ etape, isActive }: { etape: Etape; isActive: boolean }) {
       <a
         href={`#${etape.slug}`}
         aria-current={isActive ? "true" : undefined}
-        className={`group flex min-h-11 items-center gap-3 rounded-xl pl-[14px] pr-3 transition-colors ${
+        className={`flex min-h-11 items-center gap-3 rounded-xl pl-[14px] pr-3 transition-colors ${
           isActive
             ? "bg-[var(--accent-soft)]"
             : "hover:bg-[var(--accent-soft)]"
@@ -140,21 +139,11 @@ function Stop({ etape, isActive }: { etape: Etape; isActive: boolean }) {
           style={{ background: "var(--accent)" }}
         />
         <span
-          className={`min-w-0 flex-1 truncate text-[15px] leading-tight text-[var(--color-foreground)] ${
+          className={`min-w-0 flex-1 truncate text-[15px] leading-tight text-white ${
             isActive ? "font-semibold" : "font-medium"
           }`}
         >
           {etape.navn}
-        </span>
-        <span
-          className="shrink-0 font-mono text-[11px] tabular-nums"
-          style={{
-            color: isActive
-              ? "var(--accent)"
-              : "var(--color-muted-foreground)",
-          }}
-        >
-          {etape.uger}u
         </span>
       </a>
     </li>
