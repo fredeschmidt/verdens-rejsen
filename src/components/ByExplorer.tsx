@@ -2,8 +2,18 @@
 
 import { Fragment, useState } from "react";
 import type { InternTransport } from "@/lib/trip";
-import { CITY_TAB_KEYS, type CityTabKey } from "@/lib/text";
+import {
+  CITY_TAB_KEYS,
+  type CityTabKey,
+  type ChecklistData,
+} from "@/lib/text";
 import type { ContentCard } from "@/lib/content";
+import { ChecklistCard } from "@/components/ChecklistCard";
+
+export type CountryCard = ContentCard & {
+  checklist?: ChecklistData;
+  checklistKey?: string | null;
+};
 
 const TRANSPORT_EMOJI: Record<InternTransport, string> = {
   camper: "🚐",
@@ -34,6 +44,7 @@ export type CityWithContent = {
   naetter: string | null;
   budgetDkk: { min: number; maks: number } | null;
   tabs: Partial<Record<CityTabKey, string>>;
+  billederChecklist?: ChecklistData;
 };
 
 function formatBudgetDkk(min: number, maks: number): string {
@@ -56,7 +67,7 @@ export function ByExplorer({
   lead: { name: string; slug: string; flag?: string };
   cities: CityWithContent[];
   transport: InternTransport;
-  countrySections: ContentCard[];
+  countrySections: CountryCard[];
   fase: string | null;
   periode: string;
   weeks: number;
@@ -243,28 +254,43 @@ export function ByExplorer({
             className="by-tab-panel -mx-6 sm:-mx-10"
           >
             <div className="tab-acc-list">
-              {countrySections.map((s, i) => (
-                <details
-                  key={`${lead.slug}-${i}`}
-                  name={`tabs-${lead.slug}`}
-                  className="tab-acc"
-                >
-                  <summary className="tab-acc__summary">
-                    <span className="tab-acc__num">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span
-                      className="tab-acc__title"
-                      dangerouslySetInnerHTML={{ __html: s.headingHtml }}
+              {countrySections.map((s, i) => {
+                if (s.checklist) {
+                  const stable = s.checklistKey ?? `${i}`;
+                  return (
+                    <ChecklistCard
+                      key={`${lead.slug}-${stable}`}
+                      index={i}
+                      detailsName={`tabs-${lead.slug}`}
+                      storageKey={`${lead.slug}-${stable}`}
+                      headingHtml={s.headingHtml}
+                      data={s.checklist}
                     />
-                    <span aria-hidden className="tab-acc__icon shrink-0" />
-                  </summary>
-                  <div
-                    className="tab-acc__body prose-rejse"
-                    dangerouslySetInnerHTML={{ __html: s.bodyHtml }}
-                  />
-                </details>
-              ))}
+                  );
+                }
+                return (
+                  <details
+                    key={`${lead.slug}-${i}`}
+                    name={`tabs-${lead.slug}`}
+                    className="tab-acc"
+                  >
+                    <summary className="tab-acc__summary">
+                      <span className="tab-acc__num">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        className="tab-acc__title"
+                        dangerouslySetInnerHTML={{ __html: s.headingHtml }}
+                      />
+                      <span aria-hidden className="tab-acc__icon shrink-0" />
+                    </summary>
+                    <div
+                      className="tab-acc__body prose-rejse"
+                      dangerouslySetInnerHTML={{ __html: s.bodyHtml }}
+                    />
+                  </details>
+                );
+              })}
             </div>
           </div>
         ) : selectedCity ? (
@@ -275,6 +301,19 @@ export function ByExplorer({
             <div className="tab-acc-list">
               {CITY_TAB_KEYS.map((key, i) => {
                 const html = selectedCity.tabs[key];
+                if (key === "billeder" && selectedCity.billederChecklist) {
+                  const heading = `${TAB_LABEL[key]} <span class="prose-h3-emoji" aria-hidden="true">${TAB_EMOJI[key]}</span>`;
+                  return (
+                    <ChecklistCard
+                      key={key}
+                      index={i}
+                      detailsName={`bytabs-${selectedCity.slug}`}
+                      storageKey={`${lead.slug}-${selectedCity.slug}-billeder`}
+                      headingHtml={heading}
+                      data={selectedCity.billederChecklist}
+                    />
+                  );
+                }
                 return (
                   <details
                     key={key}

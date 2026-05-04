@@ -634,3 +634,187 @@ html, body { overflow-x: clip; }
   margin: 1rem 0 0.75rem;
   font-size: 0.9rem;
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Checklist (.checklist) — interaktiv, persisteret i localStorage
+
+   Erstatter standard <ul> i et "Tjekliste"-kort. Tjekkes af løbende;
+   når alle er afkrydset, får parent-card .tab-acc--complete så
+   summary-stripen viser "✓ Alle tjekket" + udfyldt accent-ikon —
+   også når accordion er lukket.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Nulstil prose-list-styling så vores rækker står rene.
+   Vigtigt: prose-rejse pakker normale <li> i en absolut-positioneret
+   accent-prik via ::before — den skal slukkes for ikke at male
+   "dobbeltbullets" ved siden af checkboksen.
+   NB: scope er .prose-rejse (ikke .tab-acc__body .prose-rejse),
+   fordi begge klasser ligger på samme <div> så descendant-kombinator
+   aldrig ville matche. */
+.prose-rejse ul.checklist,
+.prose-rejse ul.checklist > li {
+  list-style: none;
+}
+.prose-rejse ul.checklist {
+  margin: 0.875rem 0 0.25rem;
+  padding: 0;
+}
+.prose-rejse ul.checklist > li {
+  position: static;
+  padding: 0;
+  margin: 0;
+  border-top: 0;
+  line-height: inherit;
+}
+.prose-rejse ul.checklist > li::before,
+.prose-rejse ul.checklist > li:first-child::before,
+.prose-rejse ul.checklist > li::marker {
+  content: none;
+  display: none;
+  background: none;
+}
+.prose-rejse ul.checklist > li + li {
+  margin-top: 0.125rem;
+}
+
+.checklist__label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.875rem;
+  align-items: start;
+  padding: 0.7rem 0.75rem;
+  cursor: pointer;
+  border-radius: 0.875rem;
+  transition: background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.checklist__label:hover {
+  background: color-mix(in oklab, var(--accent) 7%, transparent);
+}
+
+.checklist__input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 0.15rem;
+  border: 1.75px solid color-mix(in oklab, var(--accent) 50%, transparent);
+  border-radius: 0.45rem;
+  background: var(--color-card);
+  cursor: pointer;
+  position: relative;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+  flex-shrink: 0;
+}
+.checklist__input:hover {
+  border-color: var(--accent);
+}
+.checklist__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.checklist__input:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.checklist__input:checked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5l3 3 6-6'/></svg>");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 78%;
+}
+
+.checklist__text {
+  line-height: 1.5;
+  color: var(--color-foreground);
+  transition:
+    color 0.2s ease,
+    text-decoration-color 0.2s ease;
+}
+.checklist__text strong:first-child {
+  color: var(--color-foreground);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+.checklist__item.is-checked .checklist__text {
+  color: var(--color-muted-foreground);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(
+    in oklab,
+    var(--color-muted-foreground) 65%,
+    transparent
+  );
+}
+.checklist__item.is-checked .checklist__text strong:first-child {
+  color: var(--color-muted-foreground);
+}
+
+.checklist__footer {
+  margin-top: 0.5rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid color-mix(in oklab, var(--accent) 14%, transparent);
+  display: flex;
+  justify-content: flex-end;
+}
+.checklist__reset {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: color 0.15s ease;
+}
+.checklist__reset:hover {
+  color: var(--accent);
+}
+
+.tab-acc__badge--done {
+  color: var(--accent);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Complete-state på tjekliste-kortet (.tab-acc--complete)
+   Synligt selv når <details> er lukket: accent-stripe + udfyldt ikon
+   ────────────────────────────────────────────────────────────────── */
+
+/* Vis venstre accent-stripe også uden [open] */
+.tab-acc--complete::before {
+  transform: scaleY(1);
+}
+.tab-acc--complete .tab-acc__num {
+  opacity: 1;
+}
+.tab-acc--complete .tab-acc__title {
+  color: var(--color-foreground);
+}
+
+/* Completed + lukket: udfyldt cirkel m. ✓ (stand-in for + ikon) */
+.tab-acc--complete:not([open]) .tab-acc__icon {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--color-background);
+}
+.tab-acc--complete:not([open]) .tab-acc__icon::before {
+  width: 0.5rem;
+  height: 1.5px;
+  transform: translate(-105%, 65%) rotate(45deg);
+}
+.tab-acc--complete:not([open]) .tab-acc__icon::after {
+  width: 0.95rem;
+  height: 1.5px;
+  transform: translate(-30%, -110%) rotate(-45deg);
+}
+

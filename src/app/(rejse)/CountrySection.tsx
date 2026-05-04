@@ -5,9 +5,9 @@ import {
   slugify,
   stripTags,
   type CountryContent,
-  type ContentCard,
 } from "@/lib/content";
-import { ByExplorer } from "@/components/ByExplorer";
+import { isChecklistHeading, parseChecklistFromHtml } from "@/lib/text";
+import { ByExplorer, type CountryCard } from "@/components/ByExplorer";
 
 function emojiForHeading(text: string): string {
   const t = text.toLowerCase();
@@ -58,24 +58,44 @@ export async function CountrySection({
     /på stedet|under|undervejs/i.test(s.label),
   );
 
-  const countrySections: ContentCard[] = [
+  const countrySections: CountryCard[] = [
     ...(beforeSection?.cards ?? []),
     ...(onSiteSection?.cards ?? []),
-  ].map((card) => ({
-    headingHtml: decorateHeading(card.headingHtml),
-    bodyHtml: card.bodyHtml,
-  }));
+  ].map((card) => {
+    const headingText = stripTags(card.headingHtml).trim();
+    const decorated = decorateHeading(card.headingHtml);
+    if (isChecklistHeading(headingText)) {
+      const checklist = parseChecklistFromHtml(card.bodyHtml);
+      if (checklist) {
+        return {
+          headingHtml: decorated,
+          bodyHtml: "",
+          checklist,
+          checklistKey: slugify(headingText) || null,
+        };
+      }
+    }
+    return {
+      headingHtml: decorated,
+      bodyHtml: card.bodyHtml,
+    };
+  });
 
   const byList = etape.rute.map((navn) => ({ slug: slugify(navn), navn }));
   const loadedCities = await getCitiesForCountry(etape.slug, byList);
   const cities = byList.map((b) => {
     const loaded = loadedCities.find((c) => c.bySlug === b.slug);
+    const billederHtml = loaded?.tabs?.billeder;
+    const billederChecklist = billederHtml
+      ? parseChecklistFromHtml(billederHtml) ?? undefined
+      : undefined;
     return {
       slug: b.slug,
       navn: b.navn,
       naetter: loaded?.naetter ?? null,
       budgetDkk: loaded?.budgetDkk ?? null,
       tabs: loaded?.tabs ?? {},
+      billederChecklist,
     };
   });
 
