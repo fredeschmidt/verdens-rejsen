@@ -3,6 +3,9 @@ import path from "path";
 import matter from "gray-matter";
 import { marked } from "marked";
 import sanitizeHtml from "sanitize-html";
+import { slugify, stripTags } from "./text";
+
+export { slugify, stripTags };
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 
@@ -33,6 +36,13 @@ export type Heading3 = { id: string; text: string };
 export type Heading2 = { id: string; text: string; children: Heading3[] };
 
 /**
+ * Én h3-blok udtrukket strukturelt fra markdown — bruges af accordion-UI
+ * uden at re-parse HTML. headingHtml = inner-HTML af <h3> (uden tagget),
+ * bodyHtml = alt indhold mellem h3 og næste h3/h2.
+ */
+export type ContentCard = { headingHtml: string; bodyHtml: string };
+
+/**
  * En sektion = alt indhold under én h2 ("Før ankomst", "På stedet" osv.).
  * Page-template renderer hver sektion separat med eget visuelt udtryk
  * (accent-fyldt for "før", muted for "under").
@@ -42,6 +52,7 @@ export type ContentSection = {
   label: string;
   html: string;
   headings: Heading3[];
+  cards: ContentCard[];
 };
 
 export type CountryContent = {
@@ -51,22 +62,6 @@ export type CountryContent = {
   headings: Heading2[];
   frontmatter: Record<string, unknown>;
 };
-
-/**
- * Slugify dansk tekst til id'er — bevarer å/æ/ø som a/ae/o
- * så ankre er stabile på tværs af lande.
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/å/g, "a")
-    .replace(/æ/g, "ae")
-    .replace(/ø/g, "o")
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
 
 /**
  * Decode HTML-entities i en kort streng (overskrift-tekst).
@@ -79,10 +74,6 @@ function decodeEntities(s: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, " ");
-}
-
-function stripTags(s: string): string {
-  return s.replace(/<[^>]+>/g, "");
 }
 
 /**
@@ -147,6 +138,29 @@ function wrapH3Sections(html: string): string {
 }
 
 /**
+ * Udtrækker hver h3-kort som strukturerede {headingHtml, bodyHtml} par
+ * fra HTML der er pakket af `wrapH3Sections`. Coupling: formatet på
+ * `<section class="prose-card">` skal matche begge funktioner.
+ */
+function parseCards(html: string): ContentCard[] {
+  if (!html) return [];
+  const result: ContentCard[] = [];
+  const sectionRegex = /<section class="prose-card">([\s\S]*?)<\/section>/g;
+  let m: RegExpExecArray | null;
+  while ((m = sectionRegex.exec(html)) !== null) {
+    const inner = m[1];
+    const h3Match = inner.match(/<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*)/);
+    if (h3Match) {
+      result.push({
+        headingHtml: h3Match[1],
+        bodyHtml: h3Match[2].trim(),
+      });
+    }
+  }
+  return result;
+}
+
+/**
  * Splitter HTML på h2-grænser, så hver h2 + dens flow bliver én sektion.
  * Returnerer `intro` for evt. indhold før første h2, og `sections` for
  * resten. H2-tagget fjernes fra section.html — page-template rendrer
@@ -183,6 +197,7 @@ function splitByH2(
       label: heading?.text ?? "",
       html: sectionHtml,
       headings: heading?.children ?? [],
+      cards: parseCards(sectionHtml),
     };
   });
 

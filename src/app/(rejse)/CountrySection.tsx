@@ -1,16 +1,7 @@
 import type { CSSProperties } from "react";
-import { accentVars, etapeAccent, type Etape } from "@/lib/trip";
-import type { CountryContent } from "@/lib/content";
-import { CountryBriefTabs, type BriefTab } from "@/components/CountryBriefTabs";
-
-const VIBE_LABEL: Record<string, { label: string; emoji: string }> = {
-  natur: { label: "Natur", emoji: "🌲" },
-  skov: { label: "Skov", emoji: "🌳" },
-  strand: { label: "Strand", emoji: "🏖️" },
-  by: { label: "By", emoji: "🏙️" },
-  kultur: { label: "Kultur", emoji: "🎭" },
-  eventyr: { label: "Eventyr", emoji: "🧗" },
-};
+import { FASER, accentVars, etapeAccent, type Etape } from "@/lib/trip";
+import { stripTags, type CountryContent, type ContentCard } from "@/lib/content";
+import { RuteNavigation } from "@/components/RuteNavigation";
 
 function emojiForHeading(text: string): string {
   const t = text.toLowerCase();
@@ -34,15 +25,17 @@ function emojiForHeading(text: string): string {
   return "✨";
 }
 
-function decorateHeadingsWithEmoji(html: string): string {
-  return html.replace(
-    /<h3([^>]*)>([\s\S]*?)<\/h3>/g,
-    (_full, attrs: string, inner: string) => {
-      const text = inner.replace(/<[^>]+>/g, "").trim();
-      const emoji = emojiForHeading(text);
-      return `<h3${attrs}>${inner}<span class="prose-h3-emoji" aria-hidden="true">${emoji}</span></h3>`;
-    },
-  );
+function decorateHeading(headingInnerHtml: string): string {
+  const text = stripTags(headingInnerHtml).trim();
+  const emoji = emojiForHeading(text);
+  return `${headingInnerHtml} <span class="prose-h3-emoji" aria-hidden="true">${emoji}</span>`;
+}
+
+const STOP_LEVEL_HEADINGS = [/hvor starter/i, /top oplev/i];
+
+function isCountryLevel(card: ContentCard): boolean {
+  const text = stripTags(card.headingHtml).trim();
+  return !STOP_LEVEL_HEADINGS.some((re) => re.test(text));
 }
 
 export function CountrySection({
@@ -57,6 +50,7 @@ export function CountrySection({
     etape.startMaaned === etape.slutMaaned
       ? etape.startMaaned
       : `${etape.startMaaned} – ${etape.slutMaaned}`;
+  const fase = FASER.find((f) => f.etaper.includes(etape.slug));
 
   const sections = content?.sections ?? [];
   const beforeSection = sections.find((s) => /før/i.test(s.label));
@@ -64,23 +58,15 @@ export function CountrySection({
     /på stedet|under|undervejs/i.test(s.label),
   );
 
-  const tabs: BriefTab[] = [];
-  if (beforeSection) {
-    tabs.push({
-      id: `${etape.slug}-${beforeSection.id}`,
-      label: "Før",
-      html: decorateHeadingsWithEmoji(beforeSection.html),
-      variant: "before",
-    });
-  }
-  if (onSiteSection) {
-    tabs.push({
-      id: `${etape.slug}-${onSiteSection.id}`,
-      label: "Under",
-      html: decorateHeadingsWithEmoji(onSiteSection.html),
-      variant: "onsite",
-    });
-  }
+  const countrySections: ContentCard[] = [
+    ...(beforeSection?.cards ?? []),
+    ...(onSiteSection?.cards ?? []),
+  ]
+    .filter(isCountryLevel)
+    .map((card) => ({
+      headingHtml: decorateHeading(card.headingHtml),
+      bodyHtml: card.bodyHtml,
+    }));
 
   return (
     <article
@@ -88,71 +74,15 @@ export function CountrySection({
       style={{ ...accent, scrollMarginTop: "5rem" }}
       className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-[0_28px_56px_-24px_rgba(20,20,20,0.4)]"
     >
-      <header
-        className="relative"
-        style={{
-          background:
-            "linear-gradient(180deg, var(--accent-soft) 0%, transparent 100%)",
-        }}
-      >
-        <div className="px-6 pt-9 pb-7 sm:px-10 sm:pt-12 sm:pb-9">
-          <p
-            className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em]"
-            style={{ color: "var(--accent)" }}
-          >
-            {periode} · {etape.uger} uger
-          </p>
-
-          <div className="mt-5 flex items-baseline gap-4 sm:gap-5">
-            <span aria-hidden className="text-5xl leading-none sm:text-6xl">
-              {etape.flag}
-            </span>
-            <h2 className="display text-balance text-4xl leading-[1.02] sm:text-6xl">
-              {etape.navn}
-            </h2>
-          </div>
-
-          {etape.rute.length > 0 ? (
-            <ol
-              aria-label="Rute"
-              className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.95rem] font-medium leading-snug text-[var(--color-foreground)] sm:text-base"
-            >
-              {etape.rute.map((stop, i) => (
-                <li key={i} className="inline-flex items-center gap-x-3">
-                  {i > 0 && (
-                    <span
-                      aria-hidden
-                      className="font-mono text-sm"
-                      style={{ color: "var(--accent)" }}
-                    >
-                      →
-                    </span>
-                  )}
-                  <span>{stop}</span>
-                </li>
-              ))}
-            </ol>
-          ) : null}
-
-          <ul className="mt-6 flex flex-wrap items-center gap-2 text-xl">
-            {etape.vibes.map((v) => {
-              const vibe = VIBE_LABEL[v];
-              return (
-                <li
-                  key={v}
-                  aria-label={vibe.label}
-                  title={vibe.label}
-                  className="leading-none"
-                >
-                  <span aria-hidden>{vibe.emoji}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </header>
-
-      {tabs.length > 0 ? <CountryBriefTabs tabs={tabs} /> : null}
+      <RuteNavigation
+        lead={{ name: etape.navn, slug: etape.slug, flag: etape.flag }}
+        stops={etape.rute}
+        transport={etape.intern}
+        countrySections={countrySections}
+        fase={fase?.navn ?? null}
+        periode={periode}
+        weeks={etape.uger}
+      />
     </article>
   );
 }

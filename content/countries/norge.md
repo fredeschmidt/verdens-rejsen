@@ -1,6 +1,6 @@
 ## Før ankomst
 
-### Pak til august i Norge
+### Pakkeliste
 
 - **Lag-på-lag-tøj** for begge drenge: t-shirt, fleece, regnjakke. Vejret skifter på timen.
 - **Vandtætte sko** — ikke kun gummistøvler. Fjeld-stier bliver mudrede.
@@ -8,19 +8,19 @@
 - **Solcreme** alligevel — sol i højderne brænder selv ved 16°C.
 - **Strikhuer + vanter** for drengene — ja, i august, i nord eller højt oppe.
 
-### Visum & papirer
+### Visum og papire
 
 - **Schengen** — ingen visum. Dansk pas eller ID-kort er nok.
 - Husk **gult sygesikringsbevis** for alle fire (gratis akut hjælp i hele Norden).
 
-### Valuta & penge
+### Valuta
 
 - **Norske kroner (NOK).** 1 NOK ≈ 0,65 DKK.
 - **Brug kort** — Norge er praktisk talt kontantfrit. Apple/Google Pay virker overalt.
 - Hæv **ikke** kontant før ankomst — du behøver det ikke.
 - Sæt et budget før I lander: Norge er **det dyreste land på hele turen**.
 
-### Klima i august
+### Klima
 
 - Sør (Oslo, Bergen): 14–22°C, sol mellem byger.
 - Vest (fjordene): 12–18°C, mere regn, lange dage.
@@ -46,7 +46,7 @@ Hvis tvivl: **fjord-ruten** har mere variation og er nemmere logistik med små b
 - **Atlanterhavsvejen** — kør den i sus-vejr for fuld effekt.
 - **Salmon-ladders** ved Suldal eller Førde — kig ned, se laks hoppe op.
 
-### Mad — typiske priser i 2031
+### Priser
 
 > Verificér priser tættere på afrejsen. Norge er kendt for at hæve restaurant-priser hurtigt.
 
@@ -59,7 +59,7 @@ Hvis tvivl: **fjord-ruten** har mere variation og er nemmere logistik med små b
 
 **Tip:** Køb ind én gang om dagen i Rema 1000 eller Kiwi, lav mad i camperen 4 ud af 5 dage. Spis ude bevidst — ikke som default.
 
-### Camper i Norge
+### Camper
 
 - **Allemannsretten** giver jer ret til at slå telt (eller parkere campervan) på uopdyrket jord, så længe I er **mere end 150 m fra beboelse** og blokerer ingen.
 - **Bobilparker** er fyldt op i højsæson — book nogle nætter, men lad andre være spontane.
@@ -67,7 +67,7 @@ Hvis tvivl: **fjord-ruten** har mere variation og er nemmere logistik med små b
 - **Vejene er smalle.** Tunneler, færger og 13% stigninger er normalt. Kør ikke en 8m camper hvis I kan klare jer med 6m.
 - Færger bookes online dagen før, ellers kø.
 
-### Børne-fælder & forældre-tips
+### Forældre tips
 
 - **Luca skal ikke gå mere end 3 km ad gangen** i bjerg-terræn. Læg ruter med kortere ben.
 - **Lange tunneler** (over 5 km, ingen lys) gør børn nervøse — fortæl dem hvad der sker før indkørsel.
