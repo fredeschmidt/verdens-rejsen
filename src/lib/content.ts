@@ -57,10 +57,6 @@ export type ContentSection = {
 
 export type CountryContent = {
   sections: ContentSection[];
-  /** Indhold uden h2-overskrift (intro før første h2). Sjældent brugt. */
-  intro: string;
-  headings: Heading2[];
-  frontmatter: Record<string, unknown>;
 };
 
 /**
@@ -162,34 +158,22 @@ function parseCards(html: string): ContentCard[] {
 
 /**
  * Splitter HTML på h2-grænser, så hver h2 + dens flow bliver én sektion.
- * Returnerer `intro` for evt. indhold før første h2, og `sections` for
- * resten. H2-tagget fjernes fra section.html — page-template rendrer
- * sit eget label.
+ * H2-tagget fjernes fra section.html — page-template rendrer sit eget label.
  */
-function splitByH2(
-  html: string,
-  headings: Heading2[],
-): { intro: string; sections: ContentSection[] } {
+function splitByH2(html: string, headings: Heading2[]): ContentSection[] {
   const h2Regex = /<h2[^>]*id="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g;
-  const matches: { id: string; start: number; end: number; tagEnd: number }[] = [];
+  const matches: { id: string; start: number; tagEnd: number }[] = [];
   let m: RegExpExecArray | null;
   while ((m = h2Regex.exec(html)) !== null) {
     matches.push({
       id: m[1],
       start: m.index,
-      end: m.index + m[0].length,
       tagEnd: m.index + m[0].length,
     });
   }
 
-  if (matches.length === 0) {
-    return { intro: html, sections: [] };
-  }
-
-  const intro = html.slice(0, matches[0].start);
-  const sections: ContentSection[] = matches.map((mm, i) => {
+  return matches.map((mm, i) => {
     const next = matches[i + 1];
-    // Skip h2-tagget selv (vi rendrer label separat) — start fra tagEnd
     const sectionHtml = html.slice(mm.tagEnd, next ? next.start : html.length);
     const heading = headings.find((h) => h.id === mm.id);
     return {
@@ -200,8 +184,6 @@ function splitByH2(
       cards: parseCards(sectionHtml),
     };
   });
-
-  return { intro, sections };
 }
 
 export async function getCountryContent(slug: string): Promise<CountryContent | null> {
@@ -218,6 +200,6 @@ export async function getCountryContent(slug: string): Promise<CountryContent | 
   const sanitized = sanitizeHtml(rawHtml, SANITIZE_OPTIONS);
   const { html: withIds, headings } = injectHeadingIds(sanitized);
   const wrapped = wrapH3Sections(withIds);
-  const { intro, sections } = splitByH2(wrapped, headings);
-  return { sections, intro, headings, frontmatter: parsed.data };
+  const sections = splitByH2(wrapped, headings);
+  return { sections };
 }

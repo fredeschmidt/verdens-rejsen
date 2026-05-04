@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DepartureCountdown } from "./DepartureCountdown";
 
 const NAV = [
   { href: "/", label: "Rejse" },
@@ -7,11 +8,9 @@ const NAV = [
 ];
 
 export function Header({
-  dage,
   lande,
   uger,
 }: {
-  dage: number;
   lande: number;
   uger: number;
 }) {
@@ -26,10 +25,7 @@ export function Header({
             Verdens Rejsen
           </Link>
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
-            <span className="font-semibold tabular-nums text-[var(--color-foreground)]">
-              {dage.toLocaleString("da-DK")}
-            </span>{" "}
-            dage · {lande} lande · {uger} uger
+            <DepartureCountdown /> dage · {lande} lande · {uger} uger
           </p>
         </div>
         <nav className="-mx-1 flex gap-1 overflow-x-auto text-sm sm:mx-0 sm:gap-2 sm:text-[15px]">

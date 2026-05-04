@@ -31,13 +31,6 @@ function decorateHeading(headingInnerHtml: string): string {
   return `${headingInnerHtml} <span class="prose-h3-emoji" aria-hidden="true">${emoji}</span>`;
 }
 
-const STOP_LEVEL_HEADINGS = [/hvor starter/i, /top oplev/i];
-
-function isCountryLevel(card: ContentCard): boolean {
-  const text = stripTags(card.headingHtml).trim();
-  return !STOP_LEVEL_HEADINGS.some((re) => re.test(text));
-}
-
 export function CountrySection({
   etape,
   content,
@@ -61,12 +54,10 @@ export function CountrySection({
   const countrySections: ContentCard[] = [
     ...(beforeSection?.cards ?? []),
     ...(onSiteSection?.cards ?? []),
-  ]
-    .filter(isCountryLevel)
-    .map((card) => ({
-      headingHtml: decorateHeading(card.headingHtml),
-      bodyHtml: card.bodyHtml,
-    }));
+  ].map((card) => ({
+    headingHtml: decorateHeading(card.headingHtml),
+    bodyHtml: card.bodyHtml,
+  }));
 
   return (
     <article

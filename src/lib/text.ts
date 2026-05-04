@@ -13,7 +13,7 @@ export function slugify(text: string): string {
   return text
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/å/g, "a")
     .replace(/æ/g, "ae")
     .replace(/ø/g, "o")

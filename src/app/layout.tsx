@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { Header } from "@/components/Header";
-import { TRIP_META, daysUntilDeparture } from "@/lib/trip";
+import { TRIP_META } from "@/lib/trip";
 import "./globals.css";
-
-export const dynamic = "force-dynamic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,11 +31,7 @@ export default function RootLayout({
   return (
     <html lang="da" className={`${geistSans.variable} scroll-smooth`}>
       <body className="flex min-h-screen flex-col">
-        <Header
-          dage={daysUntilDeparture()}
-          lande={TRIP_META.antalLande}
-          uger={TRIP_META.totalUger}
-        />
+        <Header lande={TRIP_META.antalLande} uger={TRIP_META.totalUger} />
         <main className="flex-1">{children}</main>
         <footer className="border-t border-[var(--color-border)] px-5 py-8 text-center text-xs text-[var(--color-muted-foreground)]">
           Verdens Rejsen · privat planlægning · 2030–2031

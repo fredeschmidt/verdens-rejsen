@@ -1,7 +1,4 @@
-"use client";
-
-import { useState } from "react";
-import { RuteCirkler, type Selection } from "./RuteCirkler";
+import { RuteCirkler } from "./RuteCirkler";
 import type { InternTransport } from "@/lib/trip";
 import type { ContentCard } from "@/lib/content";
 
@@ -22,10 +19,6 @@ export function RuteNavigation({
   periode: string;
   weeks: number;
 }) {
-  const [selection, setSelection] = useState<Selection>({ kind: "lead" });
-  const selectedStop =
-    selection.kind === "stop" ? stops[selection.index] : null;
-
   return (
     <>
       <header
@@ -50,53 +43,31 @@ export function RuteNavigation({
 
           <h2 className="sr-only">{lead.name}</h2>
 
-          <RuteCirkler
-            stops={stops}
-            transport={transport}
-            lead={lead}
-            selection={selection}
-            onSelect={setSelection}
-          />
+          <RuteCirkler stops={stops} transport={transport} lead={lead} />
         </div>
       </header>
 
       <section className="px-6 pt-2 pb-6 sm:px-10 sm:pt-3 sm:pb-8">
-        {selection.kind === "lead" ? (
-          <div className="tab-acc-list -mx-6 sm:-mx-10">
-            {countrySections.map((s, i) => (
-              <details key={i} name={`tabs-${lead.slug}`} className="tab-acc">
-                <summary className="tab-acc__summary">
-                  <span className="tab-acc__num">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span
-                    className="tab-acc__title"
-                    dangerouslySetInnerHTML={{ __html: s.headingHtml }}
-                  />
-                  <span aria-hidden className="tab-acc__icon shrink-0" />
-                </summary>
-                <div
-                  className="tab-acc__body prose-rejse"
-                  dangerouslySetInnerHTML={{ __html: s.bodyHtml }}
+        <div className="tab-acc-list -mx-6 sm:-mx-10">
+          {countrySections.map((s, i) => (
+            <details key={i} name={`tabs-${lead.slug}`} className="tab-acc">
+              <summary className="tab-acc__summary">
+                <span className="tab-acc__num">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span
+                  className="tab-acc__title"
+                  dangerouslySetInnerHTML={{ __html: s.headingHtml }}
                 />
-              </details>
-            ))}
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)]">
-            <div className="py-10 text-center">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
-                Stop {selection.index + 1}
-              </p>
-              <h3 className="mt-3 text-2xl font-bold tracking-tight text-[var(--color-foreground)] sm:text-3xl">
-                {selectedStop}
-              </h3>
-              <p className="mt-3 text-[0.95rem] text-[var(--color-muted-foreground)]">
-                Indhold om {selectedStop} kommer senere.
-              </p>
-            </div>
-          </div>
-        )}
+                <span aria-hidden className="tab-acc__icon shrink-0" />
+              </summary>
+              <div
+                className="tab-acc__body prose-rejse"
+                dangerouslySetInnerHTML={{ __html: s.bodyHtml }}
+              />
+            </details>
+          ))}
+        </div>
       </section>
     </>
   );
